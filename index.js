@@ -7,8 +7,6 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('public'))
 
-const PORT = '8912'
-
 const GAME_LIST = [
     "Game 1",
     "Game 2",
@@ -61,4 +59,4 @@ app.post('/test', (req, res) => {
     res.sendStatus(200)
 });
 
-app.listen(PORT, () => console.log(`Localhost listening on port ${PORT}`))
+app.listen(process.env.PORT || 3000, () => console.log(`Localhost listening on port ${PORT}`))
