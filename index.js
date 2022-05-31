@@ -8,42 +8,37 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('public'))
 
-// const GAME_LIST = [
-//     "Game 1",
-//     "Game 2",
-//     "Game 3",
-//     "Game 4",
-//     "Game 5"
-// ]
-
-// const TEAM_LIST = [
-//     "team1",
-//     "team2",
-//     "team3",
-//     "team4",
-//     "team5"
-// ]
-
-// let data = {}
-// for (game_item in GAME_LIST) {
-//     let game = {}
-//     game.name = GAME_LIST[game_item]
-//     game.teams = []
-
-//     for (team_item in TEAM_LIST) {
-//         let team = {}
-//         team.name = TEAM_LIST[team_item]
-//         team.score = 0
-//         game.teams.push(team)
-//     }
-//     data[game.name.toLowerCase().replace(/ /g, '')] = game
-// }
-
 const log = (_data) => {
     console.log(util.inspect(_data, {showHidden: false, depth: null, colors: true}))
 }
 
+let teams = {}
+
+let games = [
+    'thisBlows'
+]
+
 let data = {}
+
+app.post('/register', (req, res) => {
+    let {email, number, name} = req.body;
+    if (!email || !number || !name) {
+        res.sendStatus(400).
+        return
+    }
+    teams[email] = {email, number, name}
+    console.log(teams)
+    res.sendStatus(200)
+})
+
+app.get('/teams', (req, res) => {
+    res.json(teams)
+})
+
+app.get('/team_names', (req, res) => {
+    let names = Object.keys(teams).map((value) => teams[value].name)
+    res.json(names)
+})
 
 app.get('/:game', (req, res) => {
     let game = req.params.game
@@ -77,4 +72,4 @@ app.post('/test', (req, res) => {
     res.sendStatus(200)
 });
 
-app.listen(process.env.PORT || 3000)
+app.listen(process.env.PORT || 3000, () => console.log('Listening'))
