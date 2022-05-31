@@ -15,7 +15,21 @@ const log = (_data) => {
 let teams = {}
 
 let games = [
-    'thisBlows'
+    'hotPotato',
+    'theBiggerTheyAre',
+    'floatingPointException',
+    'thisBlows', //Standard
+    'stackOverflow',
+    'stackExchange',
+    'selectionSort',
+    'dontSlip',
+    'pinTheBreakpoint',
+    'beTheEasel',
+    'mummyWrap',
+    'suckItUp',
+    'faceTheCookie',
+    'tryCatch',
+    'potatoPass'
 ]
 
 let data = {}
@@ -44,11 +58,16 @@ app.get('/team_names', (req, res) => {
     res.json(names)
 })
 
+app.post('/test', (req, res) => {
+    log(req.body)
+    res.sendStatus(200)
+});
+
 app.get('/:game', (req, res) => {
     let game = req.params.game
     if (Object.keys(data).includes(game)) {
-        let response = Object.keys(data[game]).map((value) => {
-            return {title: value, score: data[game][value].score}
+        let response = Object.keys(data[game]).map((email) => {
+            return {name: teams[email].name, score: data[game][email].score}
         })
         response.sort((a, b) => b.score - a.score)
         console.log(response)
@@ -61,19 +80,16 @@ app.get('/:game', (req, res) => {
 
 app.post('/', (req, res) => {
     let {game, team, score} = req.body
-    if (!Object.keys(data).includes(game))
-        data[game] = {}
-    if (!Object.keys(data[game]).includes(team))
-        data[game][team] = {score: 0}
-    data[game][team].score = score
-    // data[game].teams[team].score = score
-    log(data)
-    res.sendStatus(200)
+    if (games.includes(game)) {
+        if (!Object.keys(data).includes(game)) {
+            data[game] = {}
+        }
+        if (!Object.keys(data[game]).includes(team)) {
+            data[game][team] = {score: 0}
+        }
+        data[game][team].score = score
+        res.sendStatus(200)
+    }
 })
-
-app.post('/test', (req, res) => {
-    log(req.body)
-    res.sendStatus(200)
-});
 
 app.listen(process.env.PORT || 3000, () => console.log('Listening'))
