@@ -82,6 +82,8 @@ app.post('/floatingPointException', (req, res) => {
             }
             data[game][team].score = score
         }
+        console.log('Floating Point Exception')
+        log(data)
         res.sendStatus(200)
     }
 })
