@@ -47,7 +47,7 @@ app.post('/register', (req, res) => {
 
     console.log('Teams')
     console.log(teams)
-    
+
     res.sendStatus(200)
 })
 
@@ -68,6 +68,23 @@ app.post('/test', (req, res) => {
     log(req.body)
     res.sendStatus(200)
 });
+
+app.post('/floatingPointException', (req, res) => {
+    let {game, scores} = req.body;
+    if (games.includes(game)) {
+        if (!Object.keys(data).includes(game)) {
+            data[game] = {}
+        }
+        for (let i = 0; i < scores.length; i++) {
+            let {score, team} = scores[i];
+            if (!Object.keys(data[game]).includes(team)) {
+                data[game][team] = {score: 0}
+            }
+            data[game][team].score = score
+        }
+        res.sendStatus(200)
+    }
+})
 
 app.get('/:game', (req, res) => {
     let game = req.params.game
