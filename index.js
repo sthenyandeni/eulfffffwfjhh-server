@@ -37,6 +37,10 @@ app.get('/teams', (req, res) => {
 
 app.get('/team_names', (req, res) => {
     let names = Object.keys(teams).map((value) => teams[value].name)
+    if (names.length == 0) {
+        res.sendStatus(404)
+        return
+    }
     res.json(names)
 })
 
