@@ -35,13 +35,19 @@ let games = [
 let data = {}
 
 app.post('/register', (req, res) => {
+    console.log('Registering team')
+    console.log(req.body)
+
     let {email, number, name} = req.body;
     if (!email || !number || !name) {
         res.sendStatus(400).
         return
     }
     teams[email] = {email, number, name}
+
+    console.log('Teams')
     console.log(teams)
+    
     res.sendStatus(200)
 })
 
