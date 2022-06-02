@@ -10,16 +10,18 @@ app.use(express.urlencoded({extended: true}))
 app.use(express.static('public'))
 
 const log = (_data) => {
-    console.log(util.inspect(_data, {showHidden: false, depth: null, colors: true}))
+    log(util.inspect(_data, {showHidden: false, depth: null, colors: true}))
 }
 
 let teams = {}
+
+let data = {}
 
 let games = [
     'hotPotato',
     'theBiggerTheyAre',
     'floatingPointException',
-    'thisBlows', //Standard
+    'thisBlows',
     'stackOverflow',
     'stackExchange',
     'selectionSort',
@@ -33,12 +35,10 @@ let games = [
     'potatoPass'
 ]
 
-let data = {}
-
-const init = () => {
-    let rawText = fs.readFileSync('teams.json')
-    teams = JSON.parse(rawText)
-}
+// const init = () => {
+//     let rawText = fs.readFileSync('teams.json')
+//     teams = JSON.parse(rawText)
+// }
 
 const getTeamNameByTableNumber = (tableNumber) => {
     let teamKeys = Object.keys(teams)
@@ -59,8 +59,8 @@ const getTeamNameByEmail = (email) => {
 }
 
 app.post('/register', (req, res) => {
-    console.log('Registering team body')
-    console.log(req.body)
+    log('Registering team body')
+    log(req.body)
 
     let teamList = req.body;
 
@@ -75,8 +75,8 @@ app.post('/register', (req, res) => {
 
     fs.writeFileSync('teams.json', JSON.stringify(teams))
 
-    console.log('Teams structure')
-    console.log(teams)
+    log('Teams structure')
+    log(teams)
 
     res.sendStatus(200)
 })
@@ -104,8 +104,8 @@ app.get('/leaderboard', (req, res) => {
         response.push({name: getTeamNameByEmail(teamKeys[i]), score: objectResponse[teamKeys[i]]})
 
     response.sort((a, b) => b.score - a.score)
-    console.log('Leaderboard')
-    console.log(response);
+    log('Leaderboard')
+    log(response);
     res.json(response);
 })
 
@@ -128,8 +128,8 @@ app.post('/test', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-    console.log('Request body')
-    console.log(req.body)
+    log('Request body')
+    log(req.body)
 
     let {game, scores} = req.body;
     if (games.includes(game)) {
@@ -141,15 +141,15 @@ app.post('/', (req, res) => {
             }
             data[game][team].score = parseInt(score)
         }
-        console.log('Output data')
+        log('Output data')
         log(data)
         res.sendStatus(200)
     }
 })
 
 app.post('/mummyWrap', (req, res) => {
-    console.log('Mummy wrap')
-    console.log(req.body)
+    log('Mummy wrap')
+    log(req.body)
 
     let {game, scores} = req.body;
     if (games.includes(game)) {
@@ -158,8 +158,8 @@ app.post('/mummyWrap', (req, res) => {
             score: value.score,
             team: getTeamNameByTableNumber(value.team)
         })).filter((value) => value.team)
-        console.log('Mapped Scores')
-        console.log(mappedScores)
+        log('Mapped Scores')
+        log(mappedScores)
         for (let i = 0; i < mappedScores.length; i++) {
             let {score, team} = mappedScores[i];
             if (!Object.keys(data[game]).includes(team)) {
@@ -167,7 +167,7 @@ app.post('/mummyWrap', (req, res) => {
             }
             data[game][team].score = parseInt(score)
         }
-        console.log('Output data')
+        log('Output data')
         log(data)
         res.sendStatus(200)
     }
@@ -187,8 +187,38 @@ app.get('/:game', (req, res) => {
     }
 })
 
+app.get('/json/teams', (req, res) => {
+    res.json(teams)
+})
 
+app.post('/json/teams', (req, res) => {
+    teams = req.body
+    fs.writeFileSync('teams.json', JSON.stringify(teams))
+    res.sendStatus(200)
+})
 
-init()
+app.get('/json/games', (req, res) => {
+    res.json(games)
+})
 
-app.listen(process.env.PORT || 8090, () => console.log('Listening'))
+app.post('/json/games', (req, res) => {
+    games = req.body
+    fs.writeFileSync('games.json', JSON.stringify(games))
+    res.sendStatus(200)
+})
+
+app.post('/reset/:game', (req, res) => {
+    let game = req.params.game
+    if (Object.keys(data).includes(game)) {
+        data[game] = {}
+        fs.writeFileSync('games.json', JSON.stringify(data))
+        res.sendStatus(200)
+    }
+    else {
+        res.sendStatus(404)
+    }
+})
+
+// init()
+
+app.listen(process.env.PORT || 8090, () => log('Listening'))
