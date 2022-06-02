@@ -147,46 +147,6 @@ app.post('/', (req, res) => {
     }
 })
 
-app.post('/mummyWrap', (req, res) => {
-    // console.log('Mummy wrap')
-    // log(req.body)
-
-    let {game, scores} = req.body;
-    if (games.includes(game)) {
-        data[game] = {}
-        let mappedScores = scores.map((value) => ({
-            score: value.score,
-            team: getTeamNameByTableNumber(value.team)
-        })).filter((value) => value.team)
-        // console.log('Mapped Scores')
-        // log(mappedScores)
-        for (let i = 0; i < mappedScores.length; i++) {
-            let {score, team} = mappedScores[i];
-            if (!Object.keys(data[game]).includes(team)) {
-                data[game][team] = {score: 0}
-            }
-            data[game][team].score = parseInt(score)
-        }
-        // console.log('Output data')
-        // log(data)
-        res.sendStatus(200)
-    }
-})
-
-app.get('/:game', (req, res) => {
-    let game = req.params.game
-    if (Object.keys(data).includes(game)) {
-        let response = Object.keys(data[game]).map((email) => {
-            return {name: teams[email].name, score: data[game][email].score}
-        })
-        response.sort((a, b) => b.score - a.score)
-        res.json(response)
-    }
-    else {
-        res.sendStatus(404)
-    }
-})
-
 app.get('/json/teams', (req, res) => {
     res.json(teams)
 })
@@ -227,6 +187,46 @@ app.post('/reset/all', (req, res) => {
     fs.writeFileSync('teams.json', JSON.stringify(teams))
 
     res.sendStatus(200)
+})
+
+app.post('/mummyWrap', (req, res) => {
+    // console.log('Mummy wrap')
+    // log(req.body)
+
+    let {game, scores} = req.body;
+    if (games.includes(game)) {
+        data[game] = {}
+        let mappedScores = scores.map((value) => ({
+            score: value.score,
+            team: getTeamNameByTableNumber(value.team)
+        })).filter((value) => value.team)
+        // console.log('Mapped Scores')
+        // log(mappedScores)
+        for (let i = 0; i < mappedScores.length; i++) {
+            let {score, team} = mappedScores[i];
+            if (!Object.keys(data[game]).includes(team)) {
+                data[game][team] = {score: 0}
+            }
+            data[game][team].score = parseInt(score)
+        }
+        // console.log('Output data')
+        // log(data)
+        res.sendStatus(200)
+    }
+})
+
+app.get('/:game', (req, res) => {
+    let game = req.params.game
+    if (Object.keys(data).includes(game)) {
+        let response = Object.keys(data[game]).map((email) => {
+            return {name: teams[email].name, score: data[game][email].score}
+        })
+        response.sort((a, b) => b.score - a.score)
+        res.json(response)
+    }
+    else {
+        res.sendStatus(404)
+    }
 })
 
 // init()
