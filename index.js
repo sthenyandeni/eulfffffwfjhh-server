@@ -59,7 +59,7 @@ const getTeamNameByEmail = (email) => {
 }
 
 app.post('/register', (req, res) => {
-    log('Registering team body')
+    console.log('Registering team body')
     log(req.body)
 
     let teamList = req.body;
@@ -75,7 +75,7 @@ app.post('/register', (req, res) => {
 
     fs.writeFileSync('teams.json', JSON.stringify(teams))
 
-    log('Teams structure')
+    console.log('Teams structure')
     log(teams)
 
     res.sendStatus(200)
@@ -104,7 +104,7 @@ app.get('/leaderboard', (req, res) => {
         response.push({name: getTeamNameByEmail(teamKeys[i]), score: objectResponse[teamKeys[i]]})
 
     response.sort((a, b) => b.score - a.score)
-    log('Leaderboard')
+    console.log('Leaderboard')
     log(response);
     res.json(response);
 })
@@ -128,7 +128,7 @@ app.post('/test', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-    log('Request body')
+    console.log('Request body')
     log(req.body)
 
     let {game, scores} = req.body;
@@ -141,14 +141,14 @@ app.post('/', (req, res) => {
             }
             data[game][team].score = parseInt(score)
         }
-        log('Output data')
+        console.log('Output data')
         log(data)
         res.sendStatus(200)
     }
 })
 
 app.post('/mummyWrap', (req, res) => {
-    log('Mummy wrap')
+    console.log('Mummy wrap')
     log(req.body)
 
     let {game, scores} = req.body;
@@ -158,7 +158,7 @@ app.post('/mummyWrap', (req, res) => {
             score: value.score,
             team: getTeamNameByTableNumber(value.team)
         })).filter((value) => value.team)
-        log('Mapped Scores')
+        cnosole.log('Mapped Scores')
         log(mappedScores)
         for (let i = 0; i < mappedScores.length; i++) {
             let {score, team} = mappedScores[i];
@@ -167,7 +167,7 @@ app.post('/mummyWrap', (req, res) => {
             }
             data[game][team].score = parseInt(score)
         }
-        log('Output data')
+        console.log('Output data')
         log(data)
         res.sendStatus(200)
     }
@@ -221,4 +221,4 @@ app.post('/reset/:game', (req, res) => {
 
 // init()
 
-app.listen(process.env.PORT || 8090, () => log('Listening'))
+app.listen(process.env.PORT || 8090, () => console.log('Listening'))
