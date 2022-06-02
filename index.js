@@ -59,8 +59,8 @@ const getTeamNameByEmail = (email) => {
 }
 
 app.post('/register', (req, res) => {
-    console.log('Registering team body')
-    log(req.body)
+    // console.log('Registering team body')
+    // log(req.body)
 
     let teamList = req.body;
 
@@ -75,8 +75,8 @@ app.post('/register', (req, res) => {
 
     fs.writeFileSync('teams.json', JSON.stringify(teams))
 
-    console.log('Teams structure')
-    log(teams)
+    // console.log('Teams structure')
+    // log(teams)
 
     res.sendStatus(200)
 })
@@ -104,8 +104,8 @@ app.get('/leaderboard', (req, res) => {
         response.push({name: getTeamNameByEmail(teamKeys[i]), score: objectResponse[teamKeys[i]]})
 
     response.sort((a, b) => b.score - a.score)
-    console.log('Leaderboard')
-    log(response);
+    // console.log('Leaderboard')
+    // log(response);
     res.json(response);
 })
 
@@ -123,13 +123,13 @@ app.get('/team_names', (req, res) => {
 })
 
 app.post('/test', (req, res) => {
-    log(req.body)
+    // log(req.body)
     res.sendStatus(200)
 });
 
 app.post('/', (req, res) => {
-    console.log('Request body')
-    log(req.body)
+    // console.log('Request body')
+    // log(req.body)
 
     let {game, scores} = req.body;
     if (games.includes(game)) {
@@ -141,15 +141,15 @@ app.post('/', (req, res) => {
             }
             data[game][team].score = parseInt(score)
         }
-        console.log('Output data')
-        log(data)
+        // console.log('Output data')
+        // log(data)
         res.sendStatus(200)
     }
 })
 
 app.post('/mummyWrap', (req, res) => {
-    console.log('Mummy wrap')
-    log(req.body)
+    // console.log('Mummy wrap')
+    // log(req.body)
 
     let {game, scores} = req.body;
     if (games.includes(game)) {
@@ -158,8 +158,8 @@ app.post('/mummyWrap', (req, res) => {
             score: value.score,
             team: getTeamNameByTableNumber(value.team)
         })).filter((value) => value.team)
-        cnosole.log('Mapped Scores')
-        log(mappedScores)
+        // console.log('Mapped Scores')
+        // log(mappedScores)
         for (let i = 0; i < mappedScores.length; i++) {
             let {score, team} = mappedScores[i];
             if (!Object.keys(data[game]).includes(team)) {
@@ -167,8 +167,8 @@ app.post('/mummyWrap', (req, res) => {
             }
             data[game][team].score = parseInt(score)
         }
-        console.log('Output data')
-        log(data)
+        // console.log('Output data')
+        // log(data)
         res.sendStatus(200)
     }
 })
