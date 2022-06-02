@@ -198,12 +198,12 @@ app.post('/json/teams', (req, res) => {
 })
 
 app.get('/json/games', (req, res) => {
-    res.json(games)
+    res.json(data)
 })
 
 app.post('/json/games', (req, res) => {
-    games = req.body
-    fs.writeFileSync('games.json', JSON.stringify(games))
+    data = req.body
+    fs.writeFileSync('games.json', JSON.stringify(data))
     res.sendStatus(200)
 })
 
@@ -217,6 +217,16 @@ app.post('/reset/:game', (req, res) => {
     else {
         res.sendStatus(404)
     }
+})
+
+app.post('/reset/all', (req, res) => {
+    data = {}
+    fs.writeFileSync('games.json', JSON.stringify(data))
+
+    teams = {}
+    fs.writeFileSync('teams.json', JSON.stringify(teams))
+
+    res.sendStatus(200)
 })
 
 // init()
