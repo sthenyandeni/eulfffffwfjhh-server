@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const util = require('util')
+const fs = require('fs')
 
 app.use(cors())
 app.use(express.json())
@@ -34,21 +35,78 @@ let games = [
 
 let data = {}
 
+const init = () => {
+    let rawText = fs.readFileSync('teams.json')
+    teams = JSON.parse(rawText)
+}
+
+const getTeamNameByTableNumber = (tableNumber) => {
+    let teamKeys = Object.keys(teams)
+    for (let i = 0; i < teamKeys.length; i++) {
+        let team = teams[teamKeys[i]]
+        if (team.number == tableNumber)
+            return team.email
+    }
+}
+
+const getTeamNameByEmail = (email) => {
+    let teamKeys = Object.keys(teams)
+    for (let i = 0; i < teamKeys.length; i++) {
+        let team = teams[teamKeys[i]]
+        if (team.email == email)
+            return team.name
+    }
+}
+
 app.post('/register', (req, res) => {
-    console.log('Registering team')
+    console.log('Registering team body')
     console.log(req.body)
 
-    let {email, number, name} = req.body;
-    if (!email || !number || !name) {
-        res.sendStatus(400).
-        return
-    }
-    teams[email] = {email, number, name}
+    let teamList = req.body;
 
-    console.log('Teams')
+    for (let i = 0; i < teamList.length; i++) {
+        let {email, number, name} = teamList[i];
+        if (!email || !number || !name) {
+            res.sendStatus(400).
+            return
+        }
+        teams[email] = {email, number, name}
+    }
+
+    fs.writeFileSync('teams.json', JSON.stringify(teams))
+
+    console.log('Teams structure')
     console.log(teams)
 
     res.sendStatus(200)
+})
+
+app.get('/leaderboard', (req, res) => {
+    // let rawText = fs.readFileSync('games.json')
+    // let data = JSON.parse(rawText)
+    let gameKeys = Object.keys(data);
+    let objectResponse = {}
+    for (let i = 0; i < gameKeys.length; i++) {
+        let game = data[gameKeys[i]];
+        let gameTeamKeys = Object.keys(game)
+        for (let j = 0; j < gameTeamKeys.length; j++) {
+            let team = gameTeamKeys[j]
+            if (!Object.keys(objectResponse).includes(team)) {
+                objectResponse[team] = 0
+            }
+            objectResponse[team] += parseInt(game[team].score)
+        }
+    }
+
+    let response = [];
+    let teamKeys = Object.keys(objectResponse)
+    for (let i = 0; i < teamKeys.length; i++)
+        response.push({name: getTeamNameByEmail(teamKeys[i]), score: objectResponse[teamKeys[i]]})
+
+    response.sort((a, b) => b.score - a.score)
+    console.log('Leaderboard')
+    console.log(response);
+    res.json(response);
 })
 
 app.get('/teams', (req, res) => {
@@ -56,7 +114,7 @@ app.get('/teams', (req, res) => {
 })
 
 app.get('/team_names', (req, res) => {
-    let names = Object.keys(teams).map((value) => teams[value].name)
+    let names = Object.keys(teams).map((value) => ({name: teams[value].name, number: teams[value].number}))
     if (names.length == 0) {
         res.sendStatus(404)
         return
@@ -69,20 +127,47 @@ app.post('/test', (req, res) => {
     res.sendStatus(200)
 });
 
-app.post('/floatingPointException', (req, res) => {
+app.post('/', (req, res) => {
+    console.log('Request body')
+    console.log(req.body)
+
     let {game, scores} = req.body;
     if (games.includes(game)) {
-        if (!Object.keys(data).includes(game)) {
-            data[game] = {}
-        }
+        data[game] = {}
         for (let i = 0; i < scores.length; i++) {
             let {score, team} = scores[i];
             if (!Object.keys(data[game]).includes(team)) {
                 data[game][team] = {score: 0}
             }
-            data[game][team].score = score
+            data[game][team].score = parseInt(score)
         }
-        console.log('Floating Point Exception')
+        console.log('Output data')
+        log(data)
+        res.sendStatus(200)
+    }
+})
+
+app.post('/mummyWrap', (req, res) => {
+    console.log('Mummy wrap')
+    console.log(req.body)
+
+    let {game, scores} = req.body;
+    if (games.includes(game)) {
+        data[game] = {}
+        let mappedScores = scores.map((value) => ({
+            score: value.score,
+            team: getTeamNameByTableNumber(value.team)
+        })).filter((value) => value.team)
+        console.log('Mapped Scores')
+        console.log(mappedScores)
+        for (let i = 0; i < mappedScores.length; i++) {
+            let {score, team} = mappedScores[i];
+            if (!Object.keys(data[game]).includes(team)) {
+                data[game][team] = {score: 0}
+            }
+            data[game][team].score = parseInt(score)
+        }
+        console.log('Output data')
         log(data)
         res.sendStatus(200)
     }
@@ -95,7 +180,6 @@ app.get('/:game', (req, res) => {
             return {name: teams[email].name, score: data[game][email].score}
         })
         response.sort((a, b) => b.score - a.score)
-        console.log(response)
         res.json(response)
     }
     else {
@@ -103,18 +187,8 @@ app.get('/:game', (req, res) => {
     }
 })
 
-app.post('/', (req, res) => {
-    let {game, team, score} = req.body
-    if (games.includes(game)) {
-        if (!Object.keys(data).includes(game)) {
-            data[game] = {}
-        }
-        if (!Object.keys(data[game]).includes(team)) {
-            data[game][team] = {score: 0}
-        }
-        data[game][team].score = score
-        res.sendStatus(200)
-    }
-})
 
-app.listen(process.env.PORT || 3000, () => console.log('Listening'))
+
+init()
+
+app.listen(process.env.PORT || 8090, () => console.log('Listening'))
