@@ -167,6 +167,16 @@ app.post('/json/games', (req, res) => {
     res.sendStatus(200)
 })
 
+app.post('/reset/all', (req, res) => {
+    data = {}
+    fs.writeFileSync('games.json', JSON.stringify(data))
+
+    teams = {}
+    fs.writeFileSync('teams.json', JSON.stringify(teams))
+
+    res.sendStatus(200)
+})
+
 app.post('/reset/:game', (req, res) => {
     let game = req.params.game
     if (Object.keys(data).includes(game)) {
@@ -177,16 +187,6 @@ app.post('/reset/:game', (req, res) => {
     else {
         res.sendStatus(404)
     }
-})
-
-app.post('/reset/all', (req, res) => {
-    data = {}
-    fs.writeFileSync('games.json', JSON.stringify(data))
-
-    teams = {}
-    fs.writeFileSync('teams.json', JSON.stringify(teams))
-
-    res.sendStatus(200)
 })
 
 app.post('/mummyWrap', (req, res) => {
